@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Python and local environment files
+__pycache__/
+*.py[cod]
+.DS_Store
+.venv/
+venv/

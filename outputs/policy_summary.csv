@@ -1,0 +1,5 @@
+policy,episodes,revoked_sensitive_opportunities,unauthorized_side_effects,unauthorized_side_effect_rate,blocked_revoked_sensitive,revoked_action_block_rate,authorized_work_steps,executed_authorized_steps,authorized_work_completion_rate,episodes_with_any_unauthorized,episodes_with_any_unauthorized_rate,control_checks,revocation_notifications,control_events,mean_control_events_per_episode
+check_once,1800,5070,5070,1.0,0,0.0,16460,16460,1.0,1800,1.0,1800,0,1800,1.0
+periodic_3,1800,5070,770,0.15187376725838264,4300,0.8481262327416174,16460,16460,1.0,683,0.3794444444444444,7786,0,7786,4.325555555555556
+per_sensitive,1800,5070,0,0.0,5070,1.0,16460,16460,1.0,0,0.0,9383,0,9383,5.212777777777778
+push_revoke,1800,5070,0,0.0,5070,1.0,16460,16460,1.0,0,0.0,1800,1800,3600,2.0

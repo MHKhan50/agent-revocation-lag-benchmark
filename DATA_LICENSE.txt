@@ -1,0 +1,5 @@
+The generated scenario dataset in data/scenarios.csv is dedicated to the public domain under CC0 1.0 Universal, to the extent permitted by law.
+
+CC0 1.0 legal text: https://creativecommons.org/publicdomain/zero/1.0/
+
+Code is under the MIT License in LICENSE. University pages in references.md are cited as sources; their text and marks are not included in the generated dataset and remain subject to their respective rights.

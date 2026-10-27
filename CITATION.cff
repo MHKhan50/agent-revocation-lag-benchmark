@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software or its synthetic scenarios, cite this project version and the access date."
+title: "RevocationLag: A Synthetic Benchmark for Dynamic Agent Permissions"
+version: 1.0.0
+date-released: 2026-10-27
+type: software
+authors:
+  - name: MHKhan50
+keywords:
+  - agentic AI
+  - AI agent security
+  - runtime authorization
+  - synthetic benchmark
+  - reproducibility

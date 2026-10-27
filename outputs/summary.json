@@ -1,0 +1,91 @@
+{
+  "benchmark": "RevocationLag",
+  "synthetic_scenarios": 1800,
+  "seeds": [
+    17,
+    29,
+    43
+  ],
+  "episodes_per_seed": 600,
+  "policies": [
+    "check_once",
+    "periodic_3",
+    "per_sensitive",
+    "push_revoke"
+  ],
+  "metrics": [
+    {
+      "policy": "check_once",
+      "episodes": 1800,
+      "revoked_sensitive_opportunities": 5070,
+      "unauthorized_side_effects": 5070,
+      "unauthorized_side_effect_rate": 1.0,
+      "blocked_revoked_sensitive": 0,
+      "revoked_action_block_rate": 0.0,
+      "authorized_work_steps": 16460,
+      "executed_authorized_steps": 16460,
+      "authorized_work_completion_rate": 1.0,
+      "episodes_with_any_unauthorized": 1800,
+      "episodes_with_any_unauthorized_rate": 1.0,
+      "control_checks": 1800,
+      "revocation_notifications": 0,
+      "control_events": 1800,
+      "mean_control_events_per_episode": 1.0
+    },
+    {
+      "policy": "periodic_3",
+      "episodes": 1800,
+      "revoked_sensitive_opportunities": 5070,
+      "unauthorized_side_effects": 770,
+      "unauthorized_side_effect_rate": 0.15187376725838264,
+      "blocked_revoked_sensitive": 4300,
+      "revoked_action_block_rate": 0.8481262327416174,
+      "authorized_work_steps": 16460,
+      "executed_authorized_steps": 16460,
+      "authorized_work_completion_rate": 1.0,
+      "episodes_with_any_unauthorized": 683,
+      "episodes_with_any_unauthorized_rate": 0.3794444444444444,
+      "control_checks": 7786,
+      "revocation_notifications": 0,
+      "control_events": 7786,
+      "mean_control_events_per_episode": 4.325555555555556
+    },
+    {
+      "policy": "per_sensitive",
+      "episodes": 1800,
+      "revoked_sensitive_opportunities": 5070,
+      "unauthorized_side_effects": 0,
+      "unauthorized_side_effect_rate": 0.0,
+      "blocked_revoked_sensitive": 5070,
+      "revoked_action_block_rate": 1.0,
+      "authorized_work_steps": 16460,
+      "executed_authorized_steps": 16460,
+      "authorized_work_completion_rate": 1.0,
+      "episodes_with_any_unauthorized": 0,
+      "episodes_with_any_unauthorized_rate": 0.0,
+      "control_checks": 9383,
+      "revocation_notifications": 0,
+      "control_events": 9383,
+      "mean_control_events_per_episode": 5.212777777777778
+    },
+    {
+      "policy": "push_revoke",
+      "episodes": 1800,
+      "revoked_sensitive_opportunities": 5070,
+      "unauthorized_side_effects": 0,
+      "unauthorized_side_effect_rate": 0.0,
+      "blocked_revoked_sensitive": 5070,
+      "revoked_action_block_rate": 1.0,
+      "authorized_work_steps": 16460,
+      "executed_authorized_steps": 16460,
+      "authorized_work_completion_rate": 1.0,
+      "episodes_with_any_unauthorized": 0,
+      "episodes_with_any_unauthorized_rate": 0.0,
+      "control_checks": 1800,
+      "revocation_notifications": 1800,
+      "control_events": 3600,
+      "mean_control_events_per_episode": 2.0
+    }
+  ],
+  "interpretation_warning": "Synthetic simulator results only; not real-world agent measurements."
+}
