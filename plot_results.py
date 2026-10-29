@@ -55,3 +55,59 @@ def create_chart(summary_path=SUMMARY, output_path=OUT):
 
 if __name__ == "__main__":
     print("Wrote", create_chart())
+
+
+FAULTS = ROOT / "outputs" / "fault_sweep.csv"
+FAULT_SVG = ROOT / "outputs" / "fault_tradeoff.svg"
+FAMILY_COLOURS = {"ttl": "#2a78d6", "push": "#eb6834", "push+backstop": "#1f9e75"}
+FAMILY_LABELS = {"ttl": "Re-check every k steps", "push": "Push notice (delay, loss)",
+                 "push+backstop": "Push notice + re-check every 8 steps"}
+
+
+def create_fault_chart(sweep_path=FAULTS, output_path=FAULT_SVG):
+    """Scatter: control events per episode (x) against unauthorized side-effect rate (y)."""
+    with Path(sweep_path).open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    width, height, left, right, top, bottom = 900, 520, 80, 860, 70, 440
+    xmax = max(float(r["mean_control_events_per_episode"]) for r in rows) * 1.05
+    ymax = 1.0
+
+    def px(v):
+        return left + (right - left) * v / xmax
+
+    def py(v):
+        return bottom - (bottom - top) * v / ymax
+
+    parts = ['<svg xmlns="http://www.w3.org/2000/svg" width="{0}" height="{1}" viewBox="0 0 {0} {1}" '
+             'font-family="Helvetica, Arial, sans-serif">'.format(width, height),
+             '<rect width="100%" height="100%" fill="#ffffff"/>',
+             '<text x="{}" y="34" font-size="18" fill="#1f1e1c">Revocation under late or lost notices: '
+             'exposure against control cost</text>'.format(left)]
+    for i in range(0, 6):
+        v = i / 5
+        parts.append('<line x1="{0}" x2="{1}" y1="{2:.1f}" y2="{2:.1f}" stroke="#e6e5e1"/>'.format(left, right, py(v)))
+        parts.append('<text x="{}" y="{:.1f}" font-size="12" text-anchor="end" fill="#52514e">{:.0%}</text>'.format(
+            left - 8, py(v) + 4, v))
+    for i in range(0, int(xmax) + 1, 2):
+        parts.append('<text x="{:.1f}" y="{}" font-size="12" text-anchor="middle" fill="#52514e">{}</text>'.format(
+            px(i), bottom + 20, i))
+    parts.append('<line x1="{0}" x2="{1}" y1="{2}" y2="{2}" stroke="#8a8984"/>'.format(left, right, bottom))
+    parts.append('<text x="{}" y="{}" font-size="13" text-anchor="middle" fill="#52514e">'
+                 'Control events per episode (checks + notices)</text>'.format((left + right) // 2, bottom + 45))
+    parts.append('<text x="22" y="{}" font-size="13" fill="#52514e" transform="rotate(-90 22 {})" '
+                 'text-anchor="middle">Unauthorized side-effect rate</text>'.format((top + bottom) // 2, (top + bottom) // 2))
+    for r in rows:
+        x, y = px(float(r["mean_control_events_per_episode"])), py(float(r["unauthorized_side_effect_rate"]))
+        parts.append('<circle cx="{:.1f}" cy="{:.1f}" r="6" fill="{}" fill-opacity="0.85">'
+                     '<title>{}</title></circle>'.format(x, y, FAMILY_COLOURS[r["family"]], escape(r["policy"])))
+        if r["family"] == "ttl":
+            parts.append('<text x="{:.1f}" y="{:.1f}" font-size="11" fill="#2a78d6">k={}</text>'.format(
+                x + 8, y - 6, r["ttl"]))
+    for i, fam in enumerate(("ttl", "push", "push+backstop")):
+        y = 62 + i * 20
+        parts.append('<circle cx="{}" cy="{}" r="6" fill="{}"/>'.format(right - 300, y, FAMILY_COLOURS[fam]))
+        parts.append('<text x="{}" y="{}" font-size="12" fill="#1f1e1c">{}</text>'.format(
+            right - 288, y + 4, escape(FAMILY_LABELS[fam])))
+    parts.append("</svg>")
+    Path(output_path).write_text("\n".join(parts), encoding="utf-8")
+    return Path(output_path)

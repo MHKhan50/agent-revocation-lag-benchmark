@@ -4,10 +4,9 @@
 A deterministic CSV of 1,800 generated action traces for comparing authorization policies when a tool capability is revoked during a workflow.
 
 ## Intended uses
-- Teaching runtime authorization and time-of-check/time-of-use concepts.
+- Studying runtime authorization and time-of-check to time-of-use problems.
 - Reproducing the included simulator.
 - Testing metric code and policy implementations.
-- Developing dissertation hypotheses before moving to more realistic, safely sandboxed traces.
 
 ## Not intended for
 - Estimating real-world agent incident rates.

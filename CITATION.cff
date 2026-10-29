@@ -1,14 +1,16 @@
 cff-version: 1.2.0
-message: "If you use this software or its synthetic scenarios, cite this project version and the access date."
-title: "RevocationLag: A Synthetic Benchmark for Dynamic Agent Permissions"
-version: 1.0.0
-date-released: 2026-10-27
+message: "If you use this software, please cite it as below."
+title: "RevocationLag: what happens after an AI agent's permission is revoked"
+version: 1.1.0
+date-released: 2026-10-29
 type: software
 authors:
-  - name: MHKhan50
+  - family-names: Hussain
+    given-names: Muzammal
+repository-code: "https://github.com/MHKhan50/agent-revocation-lag-benchmark"
+license: MIT
 keywords:
   - agentic AI
   - AI agent security
   - runtime authorization
-  - synthetic benchmark
-  - reproducibility
+  - permission revocation
