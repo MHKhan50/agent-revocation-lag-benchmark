@@ -24,7 +24,15 @@ Part 1 is a sanity check. Its results follow from the policy definitions: checki
 python3 run_benchmark.py                 # parts 1 and 2: tables, CSVs and charts (seconds)
 python3 -m unittest discover -s tests -v # offline tests, no model needed
 python3 llm_probe/probe.py               # part 3: 64 episodes with two local models (Ollama running)
+python3 llm_probe/run_study.py           # extended probe: 5 models, 3 sampled runs, revocation scope, denial wording
+python3 paper/analysis.py                # numbers, bootstrap intervals and figures for the paper
 ```
+
+The extended probe adds two settings. **Scope:** the revocation covers every external tool
+(`effect`, as in part 3) or only the tool that was denied (`tool`, as when permissions are named
+after tools), in which case another channel really sends and is counted as a leak. **Denial
+wording:** the explicit `PERMISSION_REVOKED` message or a bare `ERROR 403: Forbidden.`. It can be
+stopped and restarted; finished episodes are skipped.
 
 ## Results
 From my run on a MacBook M4 (16 GB). Parts 1 and 2 are deterministic; part 3 is one run at temperature 0. The full sweep is in [`outputs/fault_sweep.csv`](outputs/fault_sweep.csv).

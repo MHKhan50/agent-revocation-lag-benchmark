@@ -11,6 +11,10 @@ Policies (all run on the same 1,800 traces as benchmark.py):
   push_dD_lossP    one check at start, then a revocation notice that arrives D steps late
                    and is lost with probability P (a lost notice is never re-sent)
   push_dD_lossP+ttl8  the same push, with a re-check every 8 steps as a backstop
+
+``simulate(..., retry_every=r)`` adds re-sending: a notice that is lost is sent again every r
+steps until one copy arrives, each copy lost independently with the same probability. Each
+re-send counts as a control event. It is used by the paper's analysis, not by the sweep.
 """
 from __future__ import annotations
 
@@ -28,15 +32,36 @@ def notice_lost(scenario_id: str, loss: float) -> bool:
     return random.Random("loss-" + scenario_id).random() < loss
 
 
+def copy_lost(scenario_id: str, attempt: int, loss: float) -> bool:
+    """The first copy uses the same draw as notice_lost; re-sent copies get their own draws."""
+    if attempt == 0:
+        return notice_lost(scenario_id, loss)
+    return random.Random("loss-{}-{}".format(scenario_id, attempt)).random() < loss
+
+
 def simulate(scenario: Dict[str, object], ttl: Optional[int] = None, delay: Optional[int] = None,
-             loss: float = 0.0) -> Dict[str, object]:
+             loss: float = 0.0, retry_every: Optional[int] = None) -> Dict[str, object]:
     """ttl alone = periodic re-check; delay set = push notice; both = push with a TTL backstop."""
     actions = str(scenario["action_types"])
     revoke_at = int(scenario["revoke_at"])
     push = delay is not None
     arrive = None
-    if push and not notice_lost(str(scenario["scenario_id"]), loss):
-        arrive = revoke_at + int(delay)
+    resends = 0
+    if push:
+        sid = str(scenario["scenario_id"])
+        attempt = 0
+        while True:
+            sent_at = revoke_at + int(delay) + attempt * (retry_every or 0)
+            if attempt > 0:
+                if sent_at >= len(actions):
+                    break
+                resends += 1
+            if not copy_lost(sid, attempt, loss):
+                arrive = sent_at
+                break
+            if not retry_every:
+                break
+            attempt += 1
 
     allowed = True
     checks = notifications = unauthorized = opportunities = 0
@@ -58,7 +83,7 @@ def simulate(scenario: Dict[str, object], ttl: Optional[int] = None, delay: Opti
         "scenario_id": scenario["scenario_id"],
         "opportunities": opportunities,
         "unauthorized": unauthorized,
-        "control_events": checks + notifications,
+        "control_events": checks + notifications + resends,
         "notice_lost": push and arrive is None,
     }
 
