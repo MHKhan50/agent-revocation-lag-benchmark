@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "RevocationLag: what happens after an AI agent's permission is revoked"
-version: 1.1.0
-date-released: 2026-10-29
+title: "RevocationLag: a benchmark for permission revocation in tool-using AI agents"
+version: 1.2.0
+date-released: 2026-11-04
 type: software
 authors:
   - family-names: Hussain

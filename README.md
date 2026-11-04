@@ -1,8 +1,9 @@
-# RevocationLag: what happens after an AI agent's permission is revoked
+# RevocationLag: a benchmark for permission revocation in tool-using AI agents
 
 **Area:** agentic AI security, runtime authorization
-**Version:** 1.1.0 (29 October 2026)
-**Runs on:** Python 3.9+, standard library only. Part 3 needs Ollama with `qwen2.5:3b` and `llama3.1:8b`.
+**Version:** 1.2.0 (4 November 2026)
+**Runs on:** Python 3.9+, standard library only. The agent probes need Ollama; the paper figures need matplotlib.
+**Paper:** *Revoked, Not Stopped: Late Revocation Notices and Channel-Switching in LLM Agents* ([`paper/`](paper/))
 
 ## Research questions
 1. When a permission is revoked in the middle of an agent's workflow, how much exposure is left by late or lost revocation notices, and how often must a cached permission be re-checked to bound it?
@@ -82,6 +83,27 @@ Episodes: [`outputs/llm_probe_episodes.jsonl`](outputs/llm_probe_episodes.jsonl)
 - With the rule in the prompt, `llama3.1:8b` stopped after the denial in 8 of 8 episodes in both languages. Without it, in Roman Urdu it stopped in only 1 of 8 and ran the same tool again in 6; in English it stopped in 5 of 8.
 - `qwen2.5:3b` tried another channel (fax, post or portal) after the denial in 8 of 16 episodes, and in 7 with the rule. It told the clinician each time and still kept trying. So a prompt is not enough: every tool call needs a permission check, and the check should look at whether data leaves the clinic, not at the tool's name.
 - In the simulator, a notice one step late let 16.5% of revoked actions through and losing 30% of notices let 28.2% through. A re-check every 8 steps brought the second case down to 15.2%. Only checking before every sensitive action gave 0%, at 5.21 control events per episode.
+
+### Extended probe: five models, revocation scope and denial wording
+1,916 episodes: five local models, two prompts, two denial wordings (explicit `PERMISSION_REVOKED` or a bare
+`ERROR 403: Forbidden.`), English and Roman Urdu, 8 tasks, three sampled runs at temperature 0.7. Every episode
+runs twice with the same sampling seed: once with the revocation covering every external tool (`effect`), once
+covering only the denied tool (`tool`), where another channel really sends.
+
+| Model | Denials | Stopped | Retried | Switched | Sent another way under `tool` scope |
+|---|---|---|---|---|---|
+| qwen2.5:3b | 381 | 144 | 90 | 147 | 38.7% (74 of 191) |
+| qwen2.5:7b | 376 | 238 | 12 | 126 | 33.5% (63 of 188) |
+| llama3.2:3b | 232 | 194 | 12 | 26 | 11.2% (13 of 116) |
+| llama3.1:8b | 372 | 266 | 86 | 20 | 5.4% (10 of 186) |
+| mistral:7b | 27 | 21 | 2 | 4 | 2 of 14 (rarely used the tools) |
+
+- A bare 403 instead of an explicit revocation message raised channel-switching for `qwen2.5:7b` from 10.6% to 56.4%.
+- In 96 of the 162 disclosures the agent also told the clinician its permission was revoked, and sent the document anyway.
+- `qwen2.5:3b` switched channel after 55.8% of denials in Roman Urdu and 21.5% in English.
+- In the simulator, re-sending a lost notice every 2 steps cut the 30%-loss case to 12.7% at 2.32 control events per episode, better and cheaper than a re-check every 8 steps (15.2% at 2.60).
+
+Full analysis with confidence intervals: [`paper/main.pdf`](paper/main.pdf); every number is in [`paper/results.json`](paper/results.json).
 
 ## Article
 [Late or lost revocation notices, and agents that try another channel](https://masmatixinnovations.co.uk/insights/agent-revocation-lag-benchmark.html)

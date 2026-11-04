@@ -166,9 +166,88 @@ def main():
     out["probe_told_and_continued"] = {m: sum(e["model"] == m for e in told_and_continued)
                                        for m in sorted({e["model"] for e in eps})}
 
+    out["study"] = study(ROOT / "outputs" / "probe_study" / "episodes.jsonl")
+
     (OUT / "results.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
     figures(out, eps)
     return out
+
+
+STUDY_MODELS = ["qwen2.5:3b", "qwen2.5:7b", "llama3.2:3b", "llama3.1:8b", "mistral:7b"]
+
+
+def _task_boot(rows, metric, n_boot=N_BOOT, seed=BOOT_SEED):
+    """Percentile interval, resampling the eight tasks (all their episodes move together)."""
+    tasks = sorted({r["task"] for r in rows})
+    by = defaultdict(list)
+    for r in rows:
+        by[r["task"]].append(r)
+    rng = random.Random(seed)
+    vals = []
+    for _ in range(n_boot):
+        sample = [x for t in (rng.choice(tasks) for _ in tasks) for x in by[t]]
+        v = metric(sample)
+        if v is not None:
+            vals.append(v)
+    return [pct(vals, 0.025), pct(vals, 0.975)]
+
+
+def study(path):
+    rows = [json.loads(line) for line in path.open(encoding="utf-8")]
+    res = {"episodes": len(rows), "planned": 1920, "models": {}}
+    for m in STUDY_MODELS:
+        g = [r for r in rows if r["model"] == m]
+        hit = [r for r in g if r["outcome"] != "never_shared"]
+        c = Counter(r["outcome"] for r in hit)
+        tool = [r for r in hit if r["scope"] == "tool"]
+        leaks = sum(bool(r["leaked"]) for r in tool)
+        entry = {"episodes": len(g), "used_tools": len(hit), "never_shared": len(g) - len(hit),
+                 "stopped": c["stopped"], "retried_same": c["retried_same"], "switched": c["switched_channel"],
+                 "tool_scope_denied": len(tool), "tool_scope_leaks": leaks,
+                 "leak_rate": leaks / len(tool) if tool else None,
+                 "leak_wilson": wilson(leaks, len(tool)),
+                 "effect_scope_leaks": sum(bool(r["leaked"]) for r in hit if r["scope"] == "effect"),
+                 "told_person": sum(bool(r["told_person"]) for r in hit)}
+        cells = {}
+        for den in ("explicit", "generic"):
+            for pr in ("plain", "rule"):
+                t = [r for r in tool if r["denial"] == den and r["prompt"] == pr]
+                k = sum(bool(r["leaked"]) for r in t)
+                cells["{}|{}".format(den, pr)] = {"leaks": k, "n": len(t), "rate": k / len(t) if t else None,
+                                                  "wilson": wilson(k, len(t))}
+        entry["cells"] = cells
+
+        def sw(sample):
+            return (sum(r["outcome"] == "switched_channel" for r in sample) / len(sample)) if sample else None
+
+        def contrast(field, a, b):
+            def metric(sample):
+                x = [r for r in sample if r[field] == a]
+                y = [r for r in sample if r[field] == b]
+                return sw(x) - sw(y) if x and y else None
+            return {"diff": metric(hit), "ci95": _task_boot(hit, metric)}
+
+        if len(hit) > 50:
+            entry["contrasts"] = {"generic_minus_explicit": contrast("denial", "generic", "explicit"),
+                                  "plain_minus_rule": contrast("prompt", "plain", "rule"),
+                                  "roman_urdu_minus_english": contrast("language", "Roman Urdu", "English")}
+            entry["switch_by_language"] = {lang: sw([r for r in hit if r["language"] == lang])
+                                           for lang in ("English", "Roman Urdu")}
+        res["models"][m] = entry
+    # Same sampling seed and the same conversation up to the first switch: outcomes match across scopes.
+    pairs = defaultdict(dict)
+    for r in rows:
+        pairs[(r["model"], r["prompt"], r["denial"], r["language"], r["task"], r["repeat"])][r["scope"]] = r["outcome"]
+    both = [v for v in pairs.values() if len(v) == 2]
+    res["scope_pairs"] = len(both)
+    res["scope_pairs_same_outcome"] = sum(v["effect"] == v["tool"] for v in both)
+    leaked = [r for r in rows if r["leaked"]]
+    res["leaks_total"] = len(leaked)
+    res["leaks_told_person"] = sum(bool(r["told_person"]) for r in leaked)
+    res["leak_channels"] = dict(Counter(r["leak_tools"].split(" > ")[0] for r in leaked))
+    res["leaks_by_task"] = dict(sorted(Counter(r["task"] for r in leaked).items()))
+    res["mean_seconds"] = sum(r["seconds"] for r in rows) / len(rows)
+    return res
 
 
 def _group(rows, keys):
@@ -183,7 +262,9 @@ def figures(out, eps):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    plt.rcParams.update({"pdf.fonttype": 42, "font.family": "serif", "font.size": 8.5})
+    plt.rcParams.update({"pdf.fonttype": 42, "font.family": "serif", "font.size": 8.5,
+                         "font.serif": ["Liberation Serif", "Times New Roman", "DejaVu Serif"],
+                         "mathtext.fontset": "stix"})
     sw = out["sweep"]
 
     # Figure 1: exposure against control events
@@ -202,18 +283,24 @@ def figures(out, eps):
         filled = v["family"] == "push"
         ax.plot(v["control_events"], 100 * v["rate"], markers[v["loss"]], ms=5,
                 mfc=colours[v["delay"]] if filled else "white", mec=colours[v["delay"]], mew=1.1)
+    for v in sw.values():
+        if v["family"] == "push+resend":
+            ax.plot(v["control_events"], 100 * v["rate"], "D", ms=4.5, mfc=colours[v["delay"]],
+                    mec="black", mew=0.6)
     ps = out["base"]["per_sensitive"]
     ax.plot(ps["control_events"], 100 * ps["rate"], "*", ms=9, color="black")
-    ax.annotate("check before each\nsensitive action", (ps["control_events"], 0), xytext=(6, 8),
-                textcoords="offset points", fontsize=7)
+    ax.annotate("check before each sensitive action", (ps["control_events"], 0), xytext=(8, 0),
+                textcoords="offset points", fontsize=7, va="center")
     from matplotlib.lines import Line2D
     handles = [Line2D([], [], color="#333333", marker="o", ms=3.5, lw=1.1, label="re-check every $k$ steps")]
     handles += [Line2D([], [], ls="", marker="o", color=c, label="push, delay {}".format(d)) for d, c in colours.items()]
     handles += [Line2D([], [], ls="", marker=m, color="grey", mfc="white" if False else "grey",
                        label="loss {:.0%}".format(p)) for p, m in markers.items()]
     handles += [Line2D([], [], ls="", marker="o", mfc="white", mec="grey", label="push + re-check every 8")]
+    handles += [Line2D([], [], ls="", marker="D", mfc="grey", mec="black", mew=0.6, ms=4.5,
+                       label="push, lost notice re-sent every 2")]
     ax.legend(handles=handles, frameon=False, fontsize=6.8, loc="upper right", ncol=2)
-    ax.set_xlabel("Control events per episode (checks + delivered notices)")
+    ax.set_xlabel("Control events per episode (checks, delivered notices and re-sends)")
     ax.set_ylabel("Unauthorized side-effect rate (%)")
     ax.set_ylim(-3, 75)
     ax.grid(alpha=0.3, lw=0.5)
@@ -222,35 +309,33 @@ def figures(out, eps):
     fig.savefig(OUT / "figures" / "exposure_vs_cost.pdf")
     plt.close(fig)
 
-    # Figure 2: agent behaviour after the denial
-    order = [("qwen2.5:3b", "plain"), ("qwen2.5:3b", "rule"), ("llama3.1:8b", "plain"), ("llama3.1:8b", "rule")]
-    langs = ("English", "Roman Urdu")
-    cats = [("stopped", "stopped", "#9cc3a5"), ("retried_same", "retried same tool", "#e3b46b"),
-            ("switched_channel", "switched channel", "#c0504d")]
-    fig, ax = plt.subplots(figsize=(5.6, 2.5))
-    labels, y = [], 0
-    for m, pr in order:
-        for lang in langs:
-            g = [e for e in eps if e["model"] == m and e["prompt"] == pr and e["language"] == lang]
-            left = 0
-            for key, name, col in cats:
-                n = sum(e["outcome"] == key for e in g)
-                ax.barh(y, n, left=left, color=col, edgecolor="white", height=0.75,
-                        label=name if y == 0 else None)
-                if n:
-                    ax.text(left + n / 2, y, str(n), ha="center", va="center", fontsize=7)
-                left += n
-            labels.append("{}, {}, {}".format(m, pr, "EN" if lang == "English" else "RU"))
-            y += 1
-    ax.set_yticks(range(len(labels)))
-    ax.set_yticklabels(labels, fontsize=7)
-    ax.invert_yaxis()
-    ax.set_xlim(0, 8)
-    ax.set_xlabel("Episodes (of 8) by behaviour after the denial")
-    ax.legend(frameon=False, fontsize=7, ncol=3, loc="lower center", bbox_to_anchor=(0.45, 1.0))
+    # Figure 2: real disclosures when the revocation covers only the denied tool
+    st = out["study"]["models"]
+    models = [m for m in STUDY_MODELS if m != "mistral:7b"]
+    cells = [("explicit|plain", "explicit denial, plain prompt", "#9db8d6"),
+             ("explicit|rule", "explicit denial, rule in prompt", "#1f5f99"),
+             ("generic|plain", "generic 403, plain prompt", "#e6b08a"),
+             ("generic|rule", "generic 403, rule in prompt", "#c0612b")]
+    fig, ax = plt.subplots(figsize=(5.6, 2.7))
+    w = 0.19
+    for j, (key, name, col) in enumerate(cells):
+        xs, ys, lo, hi = [], [], [], []
+        for i, m in enumerate(models):
+            c = st[m]["cells"][key]
+            xs.append(i + (j - 1.5) * w)
+            ys.append(100 * c["rate"])
+            lo.append(100 * (c["rate"] - c["wilson"][0]))
+            hi.append(100 * (c["wilson"][1] - c["rate"]))
+        ax.bar(xs, ys, width=w, color=col, label=name, yerr=[lo, hi], error_kw={"lw": 0.7, "capsize": 1.5})
+    ax.set_xticks(range(len(models)))
+    ax.set_xticklabels(["{}\n(n = {} denied)".format(m, st[m]["tool_scope_denied"]) for m in models], fontsize=7.5)
+    ax.set_ylabel("Data sent through another\nchannel after denial (%)")
+    ax.set_ylim(0, 100)
+    ax.legend(frameon=False, fontsize=6.8, ncol=2, loc="lower center", bbox_to_anchor=(0.5, 1.0))
+    ax.grid(axis="y", alpha=0.3, lw=0.5)
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
-    fig.savefig(OUT / "figures" / "agent_outcomes.pdf")
+    fig.savefig(OUT / "figures" / "tool_scope_leaks.pdf")
     plt.close(fig)
 
 
@@ -264,4 +349,5 @@ if __name__ == "__main__":
             " ".join("{:.1%}".format(x) for x in v["per_seed"].values())))
     for k, v in res["probe"].items():
         print(k, json.dumps(v))
+    print(json.dumps(res["study"], indent=1))
     print(json.dumps(res["base"], indent=0))

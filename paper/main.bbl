@@ -1,0 +1,118 @@
+\begin{thebibliography}{18}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bishop and Dilger(1996)]{bishop1996race}
+Matt Bishop and Michael Dilger.
+\newblock Checking for race conditions in file accesses.
+\newblock \emph{Computing Systems}, 9\penalty0 (2):\penalty0 131--152, 1996.
+
+\bibitem[Saltzer and Schroeder(1975)]{saltzer1975protection}
+Jerome~H. Saltzer and Michael~D. Schroeder.
+\newblock The protection of information in computer systems.
+\newblock \emph{Proceedings of the IEEE}, 63\penalty0 (9):\penalty0 1278--1308,
+  1975.
+
+\bibitem[Lodderstedt et~al.(2013)Lodderstedt, Dronia, and Scurtescu]{rfc7009}
+Torsten Lodderstedt, Stefanie Dronia, and Marius Scurtescu.
+\newblock {OAuth} 2.0 token revocation.
+\newblock RFC 7009, Internet Engineering Task Force, 2013.
+
+\bibitem[Richer(2015)]{rfc7662}
+Justin Richer.
+\newblock {OAuth} 2.0 token introspection.
+\newblock RFC 7662, Internet Engineering Task Force, 2015.
+
+\bibitem[Tiloca et~al.(2025)Tiloca, Palombini, Echeverria, and Lewis]{rfc9770}
+Marco Tiloca, Francesca Palombini, Sebastian Echeverria, and Grace Lewis.
+\newblock Notification of revoked access tokens in the authentication and
+  authorization for constrained environments ({ACE}) framework.
+\newblock RFC 9770, Internet Engineering Task Force, 2025.
+
+\bibitem[Rasori et~al.(2024)Rasori, Saracino, Mori, et~al.]{rasori2024ace}
+Marco Rasori, Andrea Saracino, Paolo Mori, et~al.
+\newblock Using the {ACE} framework to enforce access and usage control with
+  notifications of revoked access rights.
+\newblock \emph{International Journal of Information Security}, 23:\penalty0
+  3109--3133, 2024.
+\newblock \doi{10.1007/s10207-024-00877-1}.
+
+\bibitem[Tulshibagwale et~al.(2025)Tulshibagwale, Cappalli, et~al.]{caep2025}
+Atul Tulshibagwale, Tim Cappalli, et~al.
+\newblock {OpenID} continuous access evaluation profile 1.0.
+\newblock Final specification, OpenID Foundation, Shared Signals Working Group,
+  2025.
+
+\bibitem[Shi et~al.(2025)Shi, He, Wang, Li, Wu, Guo, and Song]{shi2025progent}
+Tianneng Shi, Jingxuan He, Zhun Wang, Hongwei Li, Linyu Wu, Wenbo Guo, and Dawn
+  Song.
+\newblock Progent: Programmable privilege control for {LLM} agents.
+\newblock arXiv:2504.11703, 2025.
+
+\bibitem[Zhang et~al.(2026{\natexlab{a}})Zhang, Zhao, Liu, Lou, Cheng, and
+  Liu]{zhang2026fava}
+Y.~Zhang, X.~Zhao, S.~Liu, H.~Lou, G.~Cheng, and C.~Liu.
+\newblock {FAVA}: Formal authorization for verified agents with evidence-backed
+  permission graphs.
+\newblock arXiv:2607.27267, 2026{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2026{\natexlab{b}})Zhang, Peng, Jiang, and
+  Zhang]{zhang2026actgov}
+K.~Zhang, Y.~Peng, K.~Jiang, and Y.~Zhang.
+\newblock {ActGov}: Governing {LLM} agent actions via policy-constrained
+  validation.
+\newblock arXiv:2609.24446, 2026{\natexlab{b}}.
+
+\bibitem[Debenedetti et~al.(2024)Debenedetti, Zhang, Balunovi{\'c},
+  Beurer-Kellner, Fischer, and Tram{\`e}r]{debenedetti2024agentdojo}
+Edoardo Debenedetti, Jie Zhang, Mislav Balunovi{\'c}, Luca Beurer-Kellner, Marc
+  Fischer, and Florian Tram{\`e}r.
+\newblock {AgentDojo}: A dynamic environment to evaluate prompt injection
+  attacks and defenses for {LLM} agents.
+\newblock In \emph{Advances in Neural Information Processing Systems (Datasets
+  and Benchmarks Track)}, 2024.
+
+\bibitem[Ruan et~al.(2024)Ruan, Dong, Wang, Pitis, Zhou, Ba, Dubois, Maddison,
+  and Hashimoto]{ruan2024toolemu}
+Yangjun Ruan, Honghua Dong, Andrew Wang, Silviu Pitis, Yongchao Zhou, Jimmy Ba,
+  Yann Dubois, Chris~J. Maddison, and Tatsunori Hashimoto.
+\newblock Identifying the risks of {LM} agents with an {LM}-emulated sandbox.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+
+\bibitem[Hussain(2026)]{hussain2026software}
+Muzammal Hussain.
+\newblock {RevocationLag}: a benchmark for permission revocation in tool-using
+  {AI} agents.
+\newblock Software, version 1.0.0. Zenodo, 2026.
+
+\bibitem[Efron and Tibshirani(1993)]{efron1993bootstrap}
+Bradley Efron and Robert~J. Tibshirani.
+\newblock \emph{An Introduction to the Bootstrap}.
+\newblock Chapman \& Hall, 1993.
+
+\bibitem[{Qwen Team}(2024)]{qwen2025qwen25}
+{Qwen Team}.
+\newblock Qwen2.5 technical report.
+\newblock arXiv:2412.15115, 2024.
+
+\bibitem[Grattafiori et~al.(2024)]{grattafiori2024llama3}
+Aaron Grattafiori et~al.
+\newblock The {Llama} 3 herd of models.
+\newblock arXiv:2407.21783, 2024.
+
+\bibitem[Jiang et~al.(2023)]{jiang2023mistral}
+Albert~Q. Jiang et~al.
+\newblock Mistral {7B}.
+\newblock arXiv:2310.06825, 2023.
+
+\bibitem[Wilson(1927)]{wilson1927probable}
+Edwin~B. Wilson.
+\newblock Probable inference, the law of succession, and statistical inference.
+\newblock \emph{Journal of the American Statistical Association}, 22\penalty0
+  (158):\penalty0 209--212, 1927.
+
+\end{thebibliography}
