@@ -1,5 +1,7 @@
 # RevocationLag: a benchmark for permission revocation in tool-using AI agents
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23932496.svg)](https://doi.org/10.5281/zenodo.23932496)
+
 **Area:** agentic AI security, runtime authorization
 **Version:** 1.2.0 (4 November 2026)
 **Runs on:** Python 3.9+, standard library only. The agent probes need Ollama; the paper figures need matplotlib.
