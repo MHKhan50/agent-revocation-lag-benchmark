@@ -275,7 +275,7 @@ def figures(out, eps):
     for v in ttl:
         ax.annotate("$k$={}".format(v["ttl"]), (v["control_events"], 100 * v["rate"]), xytext=(4, 3),
                     textcoords="offset points", fontsize=7, color="#333333")
-    colours = {0: "#1f5f99", 1: "#c0612b", 2: "#3a8a4f", 4: "#7a4f9a"}
+    colours = {0: "#1F4E9C", 1: "#C8102E", 2: "#5FA65A", 4: "#E3A800"}
     markers = {0.0: "o", 0.1: "s", 0.3: "^"}
     for v in sw.values():
         if v["family"] in ("ttl", "push+resend"):
@@ -312,10 +312,10 @@ def figures(out, eps):
     # Figure 2: real disclosures when the revocation covers only the denied tool
     st = out["study"]["models"]
     models = [m for m in STUDY_MODELS if m != "mistral:7b"]
-    cells = [("explicit|plain", "explicit denial, plain prompt", "#9db8d6"),
-             ("explicit|rule", "explicit denial, rule in prompt", "#1f5f99"),
-             ("generic|plain", "generic 403, plain prompt", "#e6b08a"),
-             ("generic|rule", "generic 403, rule in prompt", "#c0612b")]
+    cells = [("explicit|plain", "explicit denial, plain prompt", "#5FA65A"),
+             ("explicit|rule", "explicit denial, rule in prompt", "#1F4E9C"),
+             ("generic|plain", "generic 403, plain prompt", "#E3A800"),
+             ("generic|rule", "generic 403, rule in prompt", "#C8102E")]
     fig, ax = plt.subplots(figsize=(5.6, 2.7))
     w = 0.19
     for j, (key, name, col) in enumerate(cells):

@@ -36,8 +36,8 @@ First, the agent's runtime may hold a cached authorization until a revocation no
 exposure this leaves with RevocationLag, a deterministic simulator of 1,800 action traces in which notices are
 late, lost, re-sent, or backed up by periodic re-checks. A notice one step late let 16.5\% of revoked sensitive
 actions through (95\% CI 15.6--17.4); losing 30\% of notices let 28.2\% through. Re-sending a lost notice every
-two steps reduced this to 12.7\% at 2.32 control events per episode, below a re-check every eight steps
-(15.2\% at 2.60 events). Only a check before every sensitive action reached zero, at 5.21 events per episode.
+two steps reduced this to 12.7\% at 2.32 control events per episode, below adding a re-check every eight steps
+to the same lossy notices (15.2\% at 2.60 events). Only a check before every sensitive action reached zero, at 5.21 events per episode.
 Second, the agent itself may route around a denial. In 1,916 episodes with five open-weight models run locally,
 the first attempt to send a fictional patient document outside a clinic was refused. When the revocation covered
 only the refused tool, as when permissions are named after tools, the document left through another channel in
@@ -238,6 +238,7 @@ Push, instant, 30\% lost & 28.2 [25.8, 30.7] & 28.4 & 1.72 \\
 Push, 1 step late, 30\% lost & 39.7 [37.5, 42.0] & 60.8 & 1.72 \\
 \addlinespace
 Push, instant, 30\% lost, re-check every 8 & 15.2 [13.7, 16.7] & 22.9 & 2.60 \\
+Push, 1 step late, re-check every 8 & 15.4 [14.5, 16.2] & 43.3 & 2.88 \\
 Push, 1 step late, 30\% lost, re-check every 8 & 25.9 [24.4, 27.4] & 52.9 & 2.60 \\
 Push, instant, 30\% lost, re-sent every 2 & 12.7 [11.5, 14.0] & 23.4 & 2.32 \\
 Push, 1 step late, 30\% lost, re-sent every 2 & 28.1 [26.7, 29.6] & 58.7 & 2.22 \\
